@@ -1,4 +1,4 @@
-let alternatingWords = `aardvark
+let alternatingWords = `aardvark,
 adroitness
 absurd
 adviser
@@ -511,30 +511,30 @@ yesteryear
 Zulu
 Yucatan`;
 
-alternatingWords = alternatingWords.split("\n");
+alternatingWords = alternatingWords.split(/[\s,]+/); // convert string to array, separating words with commas or any spaces
 
 const autocomplete = (selector, btn) => {
-  const button = document.getElementById(btn);
+  const confirmOrSubmitBtn = document.getElementById(btn);
   const copyButton = document.getElementById("copy__button");
-
   let numOfFilledInputs = 0;
-  let inputs = document.querySelectorAll(selector);
+  const inputs = document.querySelectorAll(selector);
 
   inputs.forEach((input, index) => {
     inputs[0].focus();
     input.classList.add("autocomplete-input");
-    let wrap = document.createElement("div");
+    const wrap = document.createElement("div"); // wrap for input
     wrap.className = "autocomplete-wrap";
     input.parentNode.insertBefore(wrap, input);
     wrap.appendChild(input);
 
-    let list = document.createElement("div");
+    const list = document.createElement("div"); // the list of hints
     list.className = "autocomplete-list";
     wrap.appendChild(list);
 
     let listItems = [];
     let focusedItem = -1;
 
+    //launch visiability of the list of hints
     const setActive = (active = true) => {
       if (active) {
         wrap.classList.add("active");
@@ -543,11 +543,12 @@ const autocomplete = (selector, btn) => {
       }
     };
 
-    const focusItem = (index) => {
+    //focus item of the list during pressing arrow down, up or tab keys
+    const focusItem = (ind) => {
       if (!listItems.length) return false;
-      if (index > listItems.length - 1) return focusItem(0);
-      if (index < 0) return focusItem(listItems.length - 1);
-      focusedItem = index;
+      if (ind > listItems.length - 1) return focusItem(0);
+      if (ind < 0) return focusItem(listItems.length - 1);
+      focusedItem = ind;
       unfocusAllItems();
       listItems[focusedItem].classList.add("focused");
       listItems[focusedItem].scrollIntoView({
@@ -568,95 +569,98 @@ const autocomplete = (selector, btn) => {
       setActive(false);
     };
 
-    const buttonSwitcher = () => {
+    const btnVisiabilitySwitch = () => {
       if (numOfFilledInputs === inputs.length) {
-        button.removeAttribute("disabled");
+        confirmOrSubmitBtn.removeAttribute("disabled");
         if (btn === "submit__button") {
           copyButton.focus();
-        } else button.focus();
+        } else confirmOrSubmitBtn.focus();
       } else {
-        button.setAttribute("disabled", "disabled");
+        confirmOrSubmitBtn.setAttribute("disabled", "disabled");
       }
     };
 
+    //focus next field after filling current field
     const autofocus = (field) => {
-      let current = +field.getAttribute("tabindex") + 1;
+      const current = +field.getAttribute("tabindex") + 1;
       for (let i = inputs.length; (i -= 1); ) {
-        let next = inputs[i].getAttribute("tabindex");
+        const next = inputs[i].getAttribute("tabindex");
         if (next == current) inputs[i].focus();
       }
     };
 
-    buttonSwitcher();
+    btnVisiabilitySwitch();
 
     input.addEventListener("paste", (e) => {
       e.preventDefault();
       let paste = (e.clipboardData || window.clipboardData).getData("text");
       paste = paste.trim();
       let copiedInputs = paste.split(/[\s,]+/);
-      let currentInputIndex = index;
-      copiedInputs = copiedInputs.slice(0, inputs.length - currentInputIndex);
+
+      copiedInputs = copiedInputs.slice(0, inputs.length - index);
 
       for (let i = 0; i < copiedInputs.length; i += 1) {
-        if (inputs[currentInputIndex].classList.contains("filled")) {
+        if (inputs[index].classList.contains("filled")) {
           numOfFilledInputs -= 1;
         }
-        inputs[currentInputIndex].value = copiedInputs[i];
-        if (alternatingWords.includes(inputs[currentInputIndex].value)) {
-          inputs[currentInputIndex].classList.add("filled");
+        inputs[index].value = copiedInputs[i];
+        if (alternatingWords.includes(inputs[index].value)) {
+          inputs[index].classList.add("filled");
           numOfFilledInputs += 1;
-          buttonSwitcher();
-          if (!button.hasAttribute("disabled")) {
+          btnVisiabilitySwitch();
+          if (!confirmOrSubmitBtn.hasAttribute("disabled")) {
             copyButton.focus();
           } else {
-            autofocus(inputs[currentInputIndex]);
+            autofocus(inputs[index]);
           }
         } else {
-          inputs[currentInputIndex].classList.remove("filled");
+          inputs[index].classList.remove("filled");
         }
-        currentInputIndex += 1;
+        index += 1;
       }
     });
 
     input.addEventListener("input", () => {
-      let str = input.value;
-      if (!str) return setActive(false);
+      const value = input.value;
+      if (!value) return setActive(false);
 
-      listItems = [];
-      list.innerHTML = "";
+      listItems = []; //clear the array on every input change
+      list.innerHTML = ""; //clear the list of hints on every input change
 
-      let arrOfInputSymbols = str.toLowerCase().split("");
-
-      const filteredList = (letter, arr) =>
+      const inputLetters = value.toLowerCase().split("");
+      //filter the list of hints according to the pressed key
+      const filterHintsList = (letter, arr) =>
         arr.filter((word) => {
           word = word.toLowerCase();
           if (
-            word[arrOfInputSymbols.indexOf(letter)] === letter &&
-            word[arrOfInputSymbols.lastIndexOf(letter)] === letter
+            word[inputLetters.indexOf(letter)] === letter &&
+            word[inputLetters.lastIndexOf(letter)] === letter
           ) {
             return word;
           }
         });
 
-      arrOfInputSymbols = arrOfInputSymbols.reduce((acc, element) => {
-        acc = filteredList(element, acc);
+      //the corresponding list of hints
+      const filteredHintsList = inputLetters.reduce((acc, letter) => {
+        acc = filterHintsList(letter, acc);
         return acc;
       }, alternatingWords);
 
-      arrOfInputSymbols.map((word) => {
-        let item = document.createElement("div");
+      filteredHintsList.map((word) => {
+        //map each word of the corresponding list of hints
+        const item = document.createElement("div");
         item.className = "autocomplete-item";
         item.innerText = word;
         list.appendChild(item);
         listItems.push(item);
-
+        //clicking the mapped word
         item.addEventListener("click", function () {
           selectItem(listItems.indexOf(item));
           if (selectItem && !input.classList.contains("filled")) {
             input.classList.add("filled");
             numOfFilledInputs += 1;
             autofocus(input);
-            buttonSwitcher();
+            btnVisiabilitySwitch();
           }
         });
       });
@@ -667,16 +671,17 @@ const autocomplete = (selector, btn) => {
       } else {
         setActive(false);
       }
-    });
-
-    input.addEventListener("keydown", (e) => {
-      let keyCode = e.keyCode;
-
-      if (inputs.length === numOfFilledInputs && keyCode !== 17) {
+      //changing the filled field
+      if (input.classList.contains("filled")) {
         input.classList.remove("filled");
         numOfFilledInputs -= 1;
-        buttonSwitcher();
+        btnVisiabilitySwitch();
       }
+    });
+
+    //event is fired when a key is pressed
+    input.addEventListener("keydown", (e) => {
+      const keyCode = e.keyCode;
 
       if (keyCode === 40) {
         // arrow down
@@ -694,7 +699,6 @@ const autocomplete = (selector, btn) => {
       } else if (keyCode === 13) {
         // enter
         e.preventDefault();
-
         selectItem(focusedItem);
         input.blur();
         if (
@@ -704,12 +708,7 @@ const autocomplete = (selector, btn) => {
           input.classList.add("filled");
           numOfFilledInputs += 1;
           autofocus(input);
-          buttonSwitcher();
-        } else if (
-          alternatingWords.includes(input.value) &&
-          input.classList.contains("filled")
-        ) {
-          autofocus(input);
+          btnVisiabilitySwitch();
         } else if (
           !alternatingWords.includes(input.value) &&
           input.classList.contains("filled")
@@ -717,7 +716,7 @@ const autocomplete = (selector, btn) => {
           input.classList.remove("filled");
           autofocus(input);
           numOfFilledInputs -= 1;
-          buttonSwitcher();
+          btnVisiabilitySwitch();
         } else if (
           !alternatingWords.includes(input.value) &&
           !input.classList.contains("filled")
@@ -729,33 +728,31 @@ const autocomplete = (selector, btn) => {
         if (input.classList.contains("filled")) {
           input.classList.remove("filled");
           numOfFilledInputs -= 1;
-          buttonSwitcher();
+          btnVisiabilitySwitch();
         }
       } else if (keyCode === 9) {
         // tab
-        setActive(false);
+        if (focusedItem >= 0 && !input.classList.contains("filled")) {
+          //focus on elements in the list of hints
+          e.preventDefault();
+          focusedItem++;
+          focusItem(focusedItem);
+        }
       }
     });
 
+    //clicking somewhere else excluding inputs
     document.body.addEventListener("click", (e) => {
       if (!wrap.contains(e.target)) setActive(false);
-      if (
-        !alternatingWords.includes(input.value) &&
-        input.classList.contains("filled")
-      ) {
-        input.classList.remove("filled");
-        numOfFilledInputs -= 1;
-        buttonSwitcher();
-      }
     });
   });
 };
 
-const confirmForm = (str1, str2, arrOfInputs2) => {
+const confirmForm = (submittedStr, strToConfirm, inputsToConfirm) => {
   const title = document.getElementById("title");
 
-  if (str1 === str2) {
-    arrOfInputs2.forEach((input) => {
+  if (submittedStr === strToConfirm) {
+    inputsToConfirm.forEach((input) => {
       title.style.display = "none";
       const success = document.getElementById("success");
       success.style.display = "flex";
