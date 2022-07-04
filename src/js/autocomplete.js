@@ -582,10 +582,11 @@ const autocomplete = (selector, btn) => {
 
     //focus next field after filling current field
     const autofocus = (field) => {
-      const current = +field.getAttribute("tabindex") + 1;
+      const nextField = +field.getAttribute("tabindex") + 1;
+
       for (let i = inputs.length; (i -= 1); ) {
-        const next = inputs[i].getAttribute("tabindex");
-        if (next == current) inputs[i].focus();
+        const currentInput = inputs[i].getAttribute("tabindex");
+        if (currentInput == nextField) inputs[i].focus();
       }
     };
 
@@ -596,27 +597,27 @@ const autocomplete = (selector, btn) => {
       let paste = (e.clipboardData || window.clipboardData).getData("text");
       paste = paste.trim();
       let copiedInputs = paste.split(/[\s,]+/);
-
-      copiedInputs = copiedInputs.slice(0, inputs.length - index);
+      let currentInputIndex = index;
+      copiedInputs = copiedInputs.slice(0, inputs.length - currentInputIndex);
 
       for (let i = 0; i < copiedInputs.length; i += 1) {
-        if (inputs[index].classList.contains("filled")) {
+        if (inputs[currentInputIndex].classList.contains("filled")) {
           numOfFilledInputs -= 1;
         }
-        inputs[index].value = copiedInputs[i];
-        if (alternatingWords.includes(inputs[index].value)) {
-          inputs[index].classList.add("filled");
+        inputs[currentInputIndex].value = copiedInputs[i];
+        if (alternatingWords.includes(inputs[currentInputIndex].value)) {
+          inputs[currentInputIndex].classList.add("filled");
           numOfFilledInputs += 1;
           btnVisiabilitySwitch();
           if (!confirmOrSubmitBtn.hasAttribute("disabled")) {
             copyButton.focus();
           } else {
-            autofocus(inputs[index]);
+            autofocus(inputs[currentInputIndex]);
           }
         } else {
-          inputs[index].classList.remove("filled");
+          inputs[currentInputIndex].classList.remove("filled");
         }
-        index += 1;
+        currentInputIndex += 1;
       }
     });
 
@@ -700,7 +701,6 @@ const autocomplete = (selector, btn) => {
         // enter
         e.preventDefault();
         selectItem(focusedItem);
-        input.blur();
         if (
           alternatingWords.includes(input.value) &&
           !input.classList.contains("filled")
@@ -720,6 +720,11 @@ const autocomplete = (selector, btn) => {
         } else if (
           !alternatingWords.includes(input.value) &&
           !input.classList.contains("filled")
+        ) {
+          autofocus(input);
+        } else if (
+          alternatingWords.includes(input.value) &&
+          input.classList.contains("filled")
         ) {
           autofocus(input);
         }
