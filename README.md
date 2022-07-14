@@ -8,7 +8,7 @@ git clone git@github.com:Femalopper/frontend-project-autocomplete.git
 
 ## Description
 
-Demonstration of adaptive responsive submit form. The submit form represents the fields which should be filled with the seed phrases from the given list of words. Fill in same words on the validation (second) form to see whether you’ve done it correctly.
+Demonstration of adaptive responsive submit form. The submit form represents the fields which should be filled with the seed phrases from a given word list. Fill in same words on the validation (second) form to see whether you’ve done it correctly.
 
 ## Implemented techniques
 
