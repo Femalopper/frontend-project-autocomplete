@@ -8,13 +8,13 @@ git clone git@github.com:Femalopper/frontend-project-autocomplete.git
 
 ## Description
 
-Demonstration of adaptive responsive submit form and its further validation. The submit form represents the fields which should be filled with the seed phrases from the given list of words. The validation form should be filled with the same words. If the user is succeed, the corresponding message will be shown.
+Demonstration of adaptive responsive submit form. The submit form represents the fields which should be filled with the seed phrases from the given list of words. Fill in same words on the validation (second) form to see whether you’ve done it correctly.
 
 ## Implemented techniques
 
 - autocomplete technique
 - form validation
-- copy-paste technique
+- copy-paste technique (with Ctrl+C / Ctrl+V / copy button)
 
 ## Autocomplete technique
 
