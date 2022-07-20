@@ -609,11 +609,6 @@ const autocomplete = (selector, btn) => {
           inputs[currentInputIndex].classList.add("filled");
           numOfFilledInputs += 1;
           btnVisiabilitySwitch();
-          if (!confirmOrSubmitBtn.hasAttribute("disabled")) {
-            copyButton.focus();
-          } else {
-            autofocus(inputs[currentInputIndex]);
-          }
         } else {
           inputs[currentInputIndex].classList.remove("filled");
         }
