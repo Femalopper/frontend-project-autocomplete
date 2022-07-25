@@ -31,6 +31,8 @@ h4 {
   justify-content: center;
   color: rgb(26, 108, 102);
   margin-top: 3%;
+  padding: 1%;
+  padding-left: 5%;
 }
 
 .input__wrap {
@@ -305,13 +307,25 @@ input:focus {
     text-shadow: 0 0 7px rgb(255, 255, 255), 0 0 70px rgb(213, 243, 246);
   }
 }
+@media screen and (min-width: 1200px) and (max-width: 1300px) {
+  table {
+    margin-left: 20%;
+  }
+}
+
+@media screen and (min-width: 900px) and (max-width: 1000px) {
+  table {
+    margin-left: 20%;
+  }
+}
+
 @media screen and (min-width: 300px) and (max-width: 500px) {
   .animate-ul {
     justify-content: none;
     width: 80%;
   }
 }
-@media screen and (min-width: 0px) and (max-width: 300px) {
+@media screen and (min-width: 0px) and (max-width: 320px) {
   table {
     margin-left: 2%;
   }
